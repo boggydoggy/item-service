@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class BasicItemController {
         return "basic/item";
     }
 
-    @PostMapping("/add")
+//    @PostMapping("/add")
     public String addItemV2(@ModelAttribute("item") Item item) {
         itemRepository.save(item);
 
@@ -60,6 +61,19 @@ public class BasicItemController {
                                             // @ModelAttribute("item2")라고 지정했다면 model에 item 객체를 item2라는 이름으로 추가
 
         return "basic/item";
+    }
+
+    @PostMapping("/add")
+    public String addItemV3(@ModelAttribute("item") Item item, RedirectAttributes redirectAttributes) {
+        itemRepository.save(item);
+
+        redirectAttributes.addAttribute("itemId", item.getId());
+        redirectAttributes.addAttribute("status", true);
+
+//        return "basic/item";  // forward로 링크가 변경될 때는 새로고침하면 POST 동작이 중복되기 때문에 redirect 필요
+                                // "redirect:/basic/item" + item.getId(); 하지 않은 이유는 id에 숫자가 아닌 한글이나 공백이 들어갈 경우가 있음
+                                // 이를 방지하기 위해 redirectAttributes 사용
+        return "redirect:/basic/items/{itemId}";
     }
 
     @GetMapping("/{itemId}/edit")
